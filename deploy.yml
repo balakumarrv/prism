@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prism-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prism-server
+  template:
+    metadata:
+      labels:
+        app: prism-server
+    spec:
+      containers:
+      - name: prism-server
+        image: yourusername/prism-server:latest
+        ports:
+        - containerPort: 4010
+        volumeMounts:
+        - name: prism-data
+          mountPath: /app
+      volumes:
+      - name: prism-data
+        persistentVolumeClaim:
+          claimName: prism-pvc  # Optional: only if you want persistent storage via Trident
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prism-server
+spec:
+  selector:
+    app: prism-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4010
+  type: LoadBalancer
